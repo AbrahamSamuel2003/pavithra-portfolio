@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useInView, reducedMotion } from '../hooks'
+import { profile } from '../data'
 
 /** Fades + rises into view. `delay` is in seconds. */
 export function Reveal({ as: Tag = 'div', delay = 0, className = '', style, children, ...rest }) {
@@ -142,8 +143,34 @@ export function Cursor() {
 
 export function Loader({ done }) {
   return (
-    <div className={`loader ${done ? 'done' : ''}`} aria-hidden={done}>
-      <span className="loader-p">P</span>
+    <div className={`loader ${done ? 'done' : ''}`} aria-hidden={done} aria-label="Loading portfolio">
+      <div className="loader-card">
+        <div className="loader-avatar-stage">
+          <div className="loader-ring loader-ring-outer" />
+          <div className="loader-ring loader-ring-mid" />
+          <div className="loader-ring-pulse" />
+
+          <div className="loader-photo-frame">
+            <img
+              src={profile.photo}
+              alt={profile.name}
+              className="loader-photo-img"
+              width="96"
+              height="96"
+            />
+          </div>
+
+          <span className="loader-sparkle" aria-hidden="true">✦</span>
+        </div>
+
+        <div className="loader-info">
+          <p className="loader-name">{profile.name}</p>
+          <div className="loader-line-track">
+            <div className="loader-line-bar" />
+          </div>
+          <span className="loader-sub">Loading Portfolio</span>
+        </div>
+      </div>
     </div>
   )
 }
