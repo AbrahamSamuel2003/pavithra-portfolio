@@ -15,15 +15,32 @@ export default function Contact() {
     e.preventDefault()
     setStatus('sending')
     try {
-      // Netlify Forms: the matching hidden form is in index.html
-      const res = await fetch('/', {
+      const res = await fetch(`https://formsubmit.co/ajax/${profile.email}`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: encode({ 'form-name': 'contact', ...values }),
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          message: values.message,
+          _subject: `New portfolio inquiry from ${values.name}`,
+        }),
       })
-      if (!res.ok) throw new Error('Request failed')
-      setStatus('sent')
-      setValues({ name: '', email: '', message: '', 'bot-field': '' })
+
+      const data = await res.json().catch(() => ({}))
+      if (res.ok && (data.success === 'true' || data.success === true)) {
+        setStatus('sent')
+        setValues({ name: '', email: '', message: '', 'bot-field': '' })
+      } else if (data.message && data.message.includes('Activation')) {
+        setStatus('activation-needed')
+      } else if (res.ok) {
+        setStatus('sent')
+        setValues({ name: '', email: '', message: '', 'bot-field': '' })
+      } else {
+        throw new Error(data.message || 'Request failed')
+      }
     } catch {
       setStatus('error')
     }
@@ -66,9 +83,21 @@ export default function Contact() {
             <div className="sent" role="status">
               <CheckMark className="check" />
               <h3>Message sent</h3>
-              <p>Thank you! Pavithra will get back to you soon.</p>
+              <p>Thank you! Your message has been sent directly to {profile.email}. Pavithra will get back to you soon.</p>
               <button className="link-btn" onClick={() => setStatus('idle')}>
                 Send another message
+              </button>
+            </div>
+          ) : status === 'activation-needed' ? (
+            <div className="sent" role="status">
+              <CheckMark className="check" />
+              <h3>One-Time Activation Required</h3>
+              <p>
+                An activation email has been sent to <strong>{profile.email}</strong>.
+                Please check your inbox (or spam) and click <strong>"Activate Form"</strong> once to start receiving all messages directly!
+              </p>
+              <button className="link-btn" onClick={() => setStatus('idle')}>
+                Back to form
               </button>
             </div>
           ) : (
