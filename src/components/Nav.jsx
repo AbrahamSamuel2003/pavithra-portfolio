@@ -34,7 +34,9 @@ export default function Nav({ active }) {
     <nav className={`nav ${scrolled ? 'scrolled' : ''} ${open ? 'open' : ''}`} aria-label="Main">
       <div className="container nav-inner">
         <a href="#home" className="brand" onClick={() => setOpen(false)}>
-          <span className="brand-mark">P</span>
+          <span className="brand-mark" aria-hidden="true">
+            <img src={profile.photo} alt={profile.name} className="brand-avatar-img" />
+          </span>
           <span className="brand-name">{profile.first}</span>
         </a>
 
